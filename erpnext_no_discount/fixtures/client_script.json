@@ -1,0 +1,35 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Quotation",
+  "enabled": 1,
+  "modified": "2026-09-12 16:05:12.111749",
+  "module": null,
+  "name": "Quotation - No Discount Applicable",
+  "script": "// Keep Additional Discount off item rows flagged \"No Discount Applicable\".\n//\n// Client-side mirror of erpnext_no_discount/overrides/taxes_and_totals.py.\n// Without this the form would show a different discount than the server saves.\n(function () {\n\tif (!window.erpnext || !erpnext.taxes_and_totals) return;\n\n\tconst proto = erpnext.taxes_and_totals.prototype;\n\tif (proto.__no_discount_patched) return;\n\tproto.__no_discount_patched = true;\n\n\tconst FLAG = \"custom_no_discount_applicable\";\n\n\tfunction flagged_rows(frm) {\n\t\treturn (frm.doc.items || []).filter((r) => r[FLAG] && !r.is_alternative);\n\t}\n\n\tconst _set_discount_amount = proto.set_discount_amount;\n\tproto.set_discount_amount = function () {\n\t\tconst rows = flagged_rows(this.frm);\n\t\tconst pct = this.frm.doc.additional_discount_percentage;\n\t\tif (!rows.length || !pct || !this.frm.doc.apply_discount_on) {\n\t\t\treturn _set_discount_amount.apply(this, arguments);\n\t\t}\n\t\tlet base = flt(this.frm.doc[frappe.scrub(this.frm.doc.apply_discount_on)]);\n\t\trows.forEach((r) => { base -= flt(r.net_amount); });\n\t\tthis.frm.doc.discount_amount = flt((base * pct) / 100, precision(\"discount_amount\"));\n\t};\n\n\tconst _get_total = proto.get_total_for_discount_amount;\n\tproto.get_total_for_discount_amount = function () {\n\t\tlet total = _get_total.apply(this, arguments);\n\t\tflagged_rows(this.frm).forEach((r) => { total -= flt(r.net_amount); });\n\t\treturn flt(total);\n\t};\n\n\tconst _apply_discount_amount = proto.apply_discount_amount;\n\tproto.apply_discount_amount = function () {\n\t\tconst rows = flagged_rows(this.frm);\n\t\tif (!rows.length || !this.frm.doc.discount_amount) {\n\t\t\treturn _apply_discount_amount.apply(this, arguments);\n\t\t}\n\t\tconst original_items = this.frm._items || [];\n\t\tthis.frm._items = original_items.filter((r) => !r[FLAG]);\n\t\ttry {\n\t\t\t_apply_discount_amount.apply(this, arguments);\n\t\t} finally {\n\t\t\tthis.frm._items = original_items;\n\t\t}\n\t\tthis._calculate_taxes_and_totals();\n\t};\n})();\n",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Sales Order",
+  "enabled": 1,
+  "modified": "2026-09-12 16:05:12.121840",
+  "module": null,
+  "name": "Sales Order - No Discount Applicable",
+  "script": "// Keep Additional Discount off item rows flagged \"No Discount Applicable\".\n//\n// Client-side mirror of erpnext_no_discount/overrides/taxes_and_totals.py.\n// Without this the form would show a different discount than the server saves.\n(function () {\n\tif (!window.erpnext || !erpnext.taxes_and_totals) return;\n\n\tconst proto = erpnext.taxes_and_totals.prototype;\n\tif (proto.__no_discount_patched) return;\n\tproto.__no_discount_patched = true;\n\n\tconst FLAG = \"custom_no_discount_applicable\";\n\n\tfunction flagged_rows(frm) {\n\t\treturn (frm.doc.items || []).filter((r) => r[FLAG] && !r.is_alternative);\n\t}\n\n\tconst _set_discount_amount = proto.set_discount_amount;\n\tproto.set_discount_amount = function () {\n\t\tconst rows = flagged_rows(this.frm);\n\t\tconst pct = this.frm.doc.additional_discount_percentage;\n\t\tif (!rows.length || !pct || !this.frm.doc.apply_discount_on) {\n\t\t\treturn _set_discount_amount.apply(this, arguments);\n\t\t}\n\t\tlet base = flt(this.frm.doc[frappe.scrub(this.frm.doc.apply_discount_on)]);\n\t\trows.forEach((r) => { base -= flt(r.net_amount); });\n\t\tthis.frm.doc.discount_amount = flt((base * pct) / 100, precision(\"discount_amount\"));\n\t};\n\n\tconst _get_total = proto.get_total_for_discount_amount;\n\tproto.get_total_for_discount_amount = function () {\n\t\tlet total = _get_total.apply(this, arguments);\n\t\tflagged_rows(this.frm).forEach((r) => { total -= flt(r.net_amount); });\n\t\treturn flt(total);\n\t};\n\n\tconst _apply_discount_amount = proto.apply_discount_amount;\n\tproto.apply_discount_amount = function () {\n\t\tconst rows = flagged_rows(this.frm);\n\t\tif (!rows.length || !this.frm.doc.discount_amount) {\n\t\t\treturn _apply_discount_amount.apply(this, arguments);\n\t\t}\n\t\tconst original_items = this.frm._items || [];\n\t\tthis.frm._items = original_items.filter((r) => !r[FLAG]);\n\t\ttry {\n\t\t\t_apply_discount_amount.apply(this, arguments);\n\t\t} finally {\n\t\t\tthis.frm._items = original_items;\n\t\t}\n\t\tthis._calculate_taxes_and_totals();\n\t};\n})();\n",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Sales Invoice",
+  "enabled": 1,
+  "modified": "2026-09-12 16:05:12.130161",
+  "module": null,
+  "name": "Sales Invoice - No Discount Applicable",
+  "script": "// Keep Additional Discount off item rows flagged \"No Discount Applicable\".\n//\n// Client-side mirror of erpnext_no_discount/overrides/taxes_and_totals.py.\n// Without this the form would show a different discount than the server saves.\n(function () {\n\tif (!window.erpnext || !erpnext.taxes_and_totals) return;\n\n\tconst proto = erpnext.taxes_and_totals.prototype;\n\tif (proto.__no_discount_patched) return;\n\tproto.__no_discount_patched = true;\n\n\tconst FLAG = \"custom_no_discount_applicable\";\n\n\tfunction flagged_rows(frm) {\n\t\treturn (frm.doc.items || []).filter((r) => r[FLAG] && !r.is_alternative);\n\t}\n\n\tconst _set_discount_amount = proto.set_discount_amount;\n\tproto.set_discount_amount = function () {\n\t\tconst rows = flagged_rows(this.frm);\n\t\tconst pct = this.frm.doc.additional_discount_percentage;\n\t\tif (!rows.length || !pct || !this.frm.doc.apply_discount_on) {\n\t\t\treturn _set_discount_amount.apply(this, arguments);\n\t\t}\n\t\tlet base = flt(this.frm.doc[frappe.scrub(this.frm.doc.apply_discount_on)]);\n\t\trows.forEach((r) => { base -= flt(r.net_amount); });\n\t\tthis.frm.doc.discount_amount = flt((base * pct) / 100, precision(\"discount_amount\"));\n\t};\n\n\tconst _get_total = proto.get_total_for_discount_amount;\n\tproto.get_total_for_discount_amount = function () {\n\t\tlet total = _get_total.apply(this, arguments);\n\t\tflagged_rows(this.frm).forEach((r) => { total -= flt(r.net_amount); });\n\t\treturn flt(total);\n\t};\n\n\tconst _apply_discount_amount = proto.apply_discount_amount;\n\tproto.apply_discount_amount = function () {\n\t\tconst rows = flagged_rows(this.frm);\n\t\tif (!rows.length || !this.frm.doc.discount_amount) {\n\t\t\treturn _apply_discount_amount.apply(this, arguments);\n\t\t}\n\t\tconst original_items = this.frm._items || [];\n\t\tthis.frm._items = original_items.filter((r) => !r[FLAG]);\n\t\ttry {\n\t\t\t_apply_discount_amount.apply(this, arguments);\n\t\t} finally {\n\t\t\tthis.frm._items = original_items;\n\t\t}\n\t\tthis._calculate_taxes_and_totals();\n\t};\n})();\n",
+  "view": "Form"
+ }
+]
