@@ -1,7 +1,19 @@
 # ERPNext No Discount
 
-Adds a **No Discount Applicable** checkbox to Quotation Item, Sales Order Item
-and Sales Invoice Item. Tick it and Additional Discount skips that row.
+Adds a **No Discount Applicable** checkbox to Item, and to the item rows of every
+document that has Additional Discount. Additional Discount skips a flagged row.
+
+- Selling: Quotation, Sales Order, Delivery Note, Sales Invoice, POS Invoice
+- Buying: Supplier Quotation, Purchase Order, Purchase Receipt, Purchase Invoice
+
+The Item flag is shared by both sides: a flagged item is exempt on sales and purchases.
+
+Tick it once on the Item (Sales Details, next to Grant Commission) and every new
+row for that item is flagged automatically. A row can also be ticked by hand for
+an item that is not flagged. The row copies the Item's flag only while the row is
+unticked, so a row for a flagged item cannot be unticked -- untick the Item instead.
+The flag carries over when one document is made from another (Quotation -> Order ->
+Delivery Note / Invoice, Supplier Quotation -> Purchase Order -> Receipt / Invoice).
 
 ```
 10% Additional Discount, three rows of 10,000:
@@ -54,7 +66,7 @@ bench restart
 - One ERPNext class is subclassed. On a major ERPNext upgrade, re-check
   `erpnext/controllers/taxes_and_totals.py` for changes to the three methods.
 - Only one app may override a given DocType class. If another app already
-  overrides Quotation / Sales Order / Sales Invoice, the two must be merged.
+  overrides any of the nine doctypes above, the two must be merged.
 
 ## Tests
 
@@ -66,7 +78,9 @@ cd <bench>/sites
 Exercises `calculate_taxes_and_totals()` directly rather than saving a document, so
 customisations on the site cannot colour the result. Nothing is written.
 
-Covered: the override is actually wired in; a flagged row neither absorbs discount nor
+Covered: the override is actually wired in on all nine doctypes; the discount
+maths holds on each of them; a row copies the Item's flag, and can be ticked by
+hand for an unflagged item; a flagged row neither absorbs discount nor
 enlarges what the others absorb; the flag demonstrably changes the outcome; with no flagged
 rows the behaviour is identical to stock ERPNext; all-flagged leaves nothing discountable;
 flat `discount_amount` as well as a percentage; and `apply_discount_on = "Grand Total"`,

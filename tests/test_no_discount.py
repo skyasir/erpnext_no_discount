@@ -47,27 +47,32 @@ class NoDiscountTestCase(unittest.TestCase):
 		cls.company = frappe.defaults.get_user_default("Company") or frappe.db.get_value(
 			"Company", {}, "name"
 		)
+		cls.supplier = frappe.db.get_value("Supplier", {"disabled": 0}, "name")
 		cls.price_list = frappe.db.get_value("Price List", {"selling": 1, "enabled": 1}, "name")
+		cls.buying_price_list = frappe.db.get_value("Price List", {"buying": 1, "enabled": 1}, "name")
 		cls.item = frappe.db.get_value("Item", {"is_sales_item": 1, "disabled": 0, "has_variants": 0}, "name")
 		cls.uom = frappe.db.get_value("Item", cls.item, "stock_uom") if cls.item else None
 
 	def setUp(self):
-		if not (self.customer and self.company and self.item):
-			self.skipTest("site has no customer / company / sales item to build a Quotation from")
+		if not (self.customer and self.supplier and self.company and self.item):
+			self.skipTest("site has no customer / supplier / company / item to build documents from")
 
-	def quotation(self, rows, pct=None, amount=None, apply_on="Net Total"):
+	def quotation(self, rows, pct=None, amount=None, apply_on="Net Total", doctype="Quotation"):
 		"""rows: list of (rate, flagged)."""
+		doc = self.build(doctype, rows, pct=pct, amount=amount, apply_on=apply_on)
+		doc.calculate_taxes_and_totals()
+		return doc
+
+	def build(self, doctype, rows, pct=None, amount=None, apply_on="Net Total"):
+		currency = frappe.db.get_value("Company", self.company, "default_currency")
 		doc = frappe.get_doc(
 			{
-				"doctype": "Quotation",
-				"party_name": self.customer,
+				"doctype": doctype,
 				"company": self.company,
-				"currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"currency": currency,
 				"conversion_rate": 1,
-				"selling_price_list": self.price_list,
-				"price_list_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"price_list_currency": currency,
 				"plc_conversion_rate": 1,
-				"transaction_date": frappe.utils.nowdate(),
 				"apply_discount_on": apply_on,
 				"additional_discount_percentage": pct,
 				"discount_amount": amount,
@@ -85,19 +90,79 @@ class NoDiscountTestCase(unittest.TestCase):
 				],
 			}
 		)
-		doc.calculate_taxes_and_totals()
+		date = "transaction_date" if doctype in DATED_BY_TRANSACTION else "posting_date"
+		doc.set(date, frappe.utils.nowdate())
+		if doctype in BUYING:
+			doc.update({"supplier": self.supplier, "buying_price_list": self.buying_price_list})
+		elif doctype == "Quotation":
+			doc.update(
+				{"quotation_to": "Customer", "party_name": self.customer, "selling_price_list": self.price_list}
+			)
+		else:
+			doc.update({"customer": self.customer, "selling_price_list": self.price_list})
 		return doc
+
+	def fetch(self, doc):
+		"""Run the fetch_from pass a save would, without saving."""
+		doc._action = "save"
+		doc._validate_links()
 
 	def flagged_net(self, doc):
 		return [row.net_amount for row in doc.items if row.get(FLAG)][0]
 
 
+SELLING = ("Quotation", "Sales Order", "Delivery Note", "Sales Invoice", "POS Invoice")
+BUYING = ("Supplier Quotation", "Purchase Order", "Purchase Receipt", "Purchase Invoice")
+DOCTYPES = SELLING + BUYING
+DATED_BY_TRANSACTION = ("Quotation", "Sales Order", "Supplier Quotation", "Purchase Order")
+
+
 class TestTheOverrideIsWired(NoDiscountTestCase):
-	def test_quotation_uses_the_subclass(self):
-		self.assertEqual(
-			type(frappe.get_doc({"doctype": "Quotation"})).__module__,
-			"erpnext_no_discount.overrides.selling",
-		)
+	def test_every_doctype_uses_the_subclass(self):
+		for doctype in DOCTYPES:
+			with self.subTest(doctype=doctype):
+				self.assertEqual(
+					type(frappe.get_doc({"doctype": doctype})).__module__,
+					"erpnext_no_discount.overrides."
+					+ ("buying" if doctype in BUYING else "selling"),
+				)
+
+
+class TestEveryDoctype(NoDiscountTestCase):
+	def test_flagged_row_is_untouched_on_every_doctype(self):
+		"""Same maths on each doctype: a document made from a flagged one must not
+		spread the discount back over the flagged row."""
+		for doctype in DOCTYPES:
+			with self.subTest(doctype=doctype):
+				doc = self.quotation([(10000, 0), (20000, 0), (10000, 1)], pct=10, doctype=doctype)
+
+				self.assertAlmostEqual(doc.discount_amount, 3000, places=2)
+				self.assertAlmostEqual(self.flagged_net(doc), 10000, places=2)
+
+
+class TestItemMasterFlag(NoDiscountTestCase):
+	"""The row copies the Item's flag (fetch_from + fetch_if_empty), so a row is
+	flagged when either the Item or the row itself is ticked."""
+
+	def test_row_inherits_the_item_flag(self):
+		frappe.db.set_value("Item", self.item, FLAG, 1, update_modified=False)
+		try:
+			for doctype in DOCTYPES:
+				with self.subTest(doctype=doctype):
+					doc = self.build(doctype, [(10000, 0)])
+					self.fetch(doc)
+					self.assertEqual(doc.items[0].get(FLAG), 1)
+		finally:
+			frappe.db.rollback()
+
+	def test_row_can_be_ticked_for_an_unflagged_item(self):
+		frappe.db.set_value("Item", self.item, FLAG, 0, update_modified=False)
+		try:
+			doc = self.build("Quotation", [(10000, 1)])
+			self.fetch(doc)
+			self.assertEqual(doc.items[0].get(FLAG), 1)
+		finally:
+			frappe.db.rollback()
 
 
 class TestPercentageDiscount(NoDiscountTestCase):
