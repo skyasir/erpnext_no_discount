@@ -32,12 +32,28 @@ other rows absorb. Works the same for a flat `discount_amount`.
 No Item Price or Price List is required — the logic runs off `net_amount`, never
 `price_list_rate`.
 
+## Row discount without an Item Price
+
+ERPNext takes a row's Discount % / Discount Amount from its **Price List Rate**. With no Item
+Price that is 0, so the discount is wiped (sales) or the rate drops to 0 (purchase).
+
+This app fixes that in the form: when a discount is entered on a row that has a Rate but no
+Price List Rate, the Rate becomes the row's Price List Rate first, and the discount then applies
+as normal.
+
+```
+Rate 1,000, then Discount 10%  ->  Price List Rate 1,000, Rate 900, Discount Amount 100
+```
+
+Rows that already have a Price List Rate are untouched. Clearing the discount puts the rate back.
+Covers all nine documents listed above.
+
 ## Why a class override
 
 ERPNext distributes Additional Discount across every item row and exposes no
-hook inside `calculate_taxes_and_totals`. Per-item `discount_percentage` is not
+hook inside `calculate_taxes_and_totals`. Per-item `discount_percentage` alone is not
 a usable alternative: when `price_list_rate` is `0`, `calculate_item_rate()`
-calls `remove_discount()` and wipes it.
+calls `remove_discount()` and wipes it (see above for how the form now handles that).
 
 So three methods are subclassed and wired in via `override_doctype_class`, the
 same mechanism `india_compliance` and `hrms` use:
