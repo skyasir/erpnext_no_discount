@@ -37,20 +37,19 @@ No Item Price or Price List is required — the logic runs off `net_amount`, nev
 ERPNext takes a row's Discount % / Discount Amount from its **Price List Rate**. With no Item
 Price that is 0, so the discount is wiped (sales) or the rate drops to 0 (purchase).
 
-This app fixes that in the form. On rows **without an Item Price**, each discount entered is
-taken off the row's **current** Rate, so discounts stack:
+This app fixes that in the form. On rows **without an Item Price**, the Price List Rate is
+kept equal to the Rate at all times, so a discount always comes off the rate shown and is then
+folded straight into it:
 
 ```
-Rate 10, then Discount 2      ->  8
-then Discount 10%             ->  7.20   (10% of 8)
-then clear the discount       ->  8      (undoes the last discount)
-then Discount 3               ->  5      (3 off 8)
+Rate 10             ->  Price List Rate 10
+Discount 2          ->  Rate 8,    Price List Rate 8,    Discount back to 0
+Discount 10%        ->  Rate 7.20, Price List Rate 7.20, Discount back to 0
 ```
 
-Just before ERPNext applies the new discount, the current Rate becomes the row's Price List
-Rate (and any margin is cleared), so the saved row stays consistent: Price List Rate, discount
-and Rate always agree. A quantity change does not stack anything. Rows **with** an Item Price
-or a pricing rule keep standard ERPNext behaviour: every discount is taken from the list price.
+The row only ever shows the final rate; prints show no separate discount for these rows.
+A quantity change leaves the rate alone. Rows **with** an Item Price, a pricing rule or a
+blanket order rate keep standard ERPNext behaviour: every discount is taken from the list price.
 Covers all nine documents listed above.
 
 Stock ERPNext also **hides** Discount % and Discount Amount until a row has a Price List Rate.
