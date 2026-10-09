@@ -46,6 +46,10 @@ Rate 1,000, then Discount 10%  ->  Price List Rate 1,000, Rate 900, Discount Amo
 ```
 
 Rows that already have a Price List Rate are untouched. Clearing the discount puts the rate back.
+
+Stock ERPNext also **hides** Discount % and Discount Amount until a row has a Price List Rate.
+The app ships Property Setters that show them once the row has a Price List Rate **or** a Rate
+(`eval:doc.price_list_rate || doc.rate`), on all nine item tables.
 Covers all nine documents listed above.
 
 ## Why a class override

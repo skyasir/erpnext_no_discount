@@ -66,4 +66,33 @@ fixtures = [
 			]
 		],
 	},
+	{
+		"doctype": "Property Setter",
+		"filters": [
+			[
+				"name",
+				"in",
+				[
+					"Quotation Item-discount_percentage-depends_on",
+					"Quotation Item-discount_amount-depends_on",
+					"Sales Order Item-discount_percentage-depends_on",
+					"Sales Order Item-discount_amount-depends_on",
+					"Delivery Note Item-discount_percentage-depends_on",
+					"Delivery Note Item-discount_amount-depends_on",
+					"Sales Invoice Item-discount_percentage-depends_on",
+					"Sales Invoice Item-discount_amount-depends_on",
+					"POS Invoice Item-discount_percentage-depends_on",
+					"POS Invoice Item-discount_amount-depends_on",
+					"Supplier Quotation Item-discount_percentage-depends_on",
+					"Supplier Quotation Item-discount_amount-depends_on",
+					"Purchase Order Item-discount_percentage-depends_on",
+					"Purchase Order Item-discount_amount-depends_on",
+					"Purchase Receipt Item-discount_percentage-depends_on",
+					"Purchase Receipt Item-discount_amount-depends_on",
+					"Purchase Invoice Item-discount_percentage-depends_on",
+					"Purchase Invoice Item-discount_amount-depends_on",
+				],
+			]
+		],
+	},
 ]
