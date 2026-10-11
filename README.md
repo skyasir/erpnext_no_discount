@@ -37,18 +37,21 @@ No Item Price or Price List is required — the logic runs off `net_amount`, nev
 ERPNext takes a row's Discount % / Discount Amount from its **Price List Rate**. With no Item
 Price that is 0, so the discount is wiped (sales) or the rate drops to 0 (purchase).
 
-This app fixes that in the form. On rows **without an Item Price**, the Price List Rate is
-kept equal to the Rate at all times, so a discount always comes off the rate shown and is then
-folded straight into it:
+This app fixes that in the form. On rows **without an Item Price**:
+
+- a **Rate you type** becomes the row's Price List Rate,
+- a **discount** is taken off the rate shown now, and **stays on the row**,
+- the Rate ERPNext works out from that discount leaves both alone.
 
 ```
-Rate 10             ->  Price List Rate 10
-Discount 2          ->  Rate 8,    Price List Rate 8,    Discount back to 0
-Discount 10%        ->  Rate 7.20, Price List Rate 7.20, Discount back to 0
+Rate 100            ->  Price List Rate 100, Rate 100
+Discount 10%        ->  Price List Rate 100, Rate 90,    Discount 10%
+Discount 5%         ->  Price List Rate 90,  Rate 85.50, Discount 5%   (5% of 90)
+Clear the discount  ->  Price List Rate 90,  Rate 90                   (undoes the last one)
+Rate 95             ->  Price List Rate 95,  Rate 95,    Discount 0
 ```
 
-The row only ever shows the final rate; prints show no separate discount for these rows.
-A quantity change leaves the rate alone. Rows **with** an Item Price, a pricing rule or a
+A quantity change leaves the row alone. Rows **with** an Item Price, a pricing rule or a
 blanket order rate keep standard ERPNext behaviour: every discount is taken from the list price.
 Covers all nine documents listed above.
 
