@@ -48,6 +48,16 @@ Clear the discount  ->  Price List Rate 100, Rate 100
 Rate 120            ->  Price List Rate 120, Rate 120, Discount 0
 ```
 
+Sometimes a further discount should come off the already-discounted rate instead. Tick
+**Discount on Current Rate** on the row first; the next discount is then taken off the Rate
+shown, and the tick clears itself, so a later correction is worked out from the new base:
+
+```
+Rate 100, Discount 10%           ->  Price List Rate 100,  Rate 90
+tick, Discount 5%                ->  Price List Rate 90,   Rate 85.50  (5% of 90)
+change to 6% (no tick)           ->  Price List Rate 90,   Rate 84.60  (6% of 90)
+```
+
 The discount stays on the row and prints as usual. A quantity change leaves the row alone.
 Rows **with** an Item Price, a pricing rule or a blanket order rate keep standard ERPNext
 behaviour. Covers all nine documents listed above.
