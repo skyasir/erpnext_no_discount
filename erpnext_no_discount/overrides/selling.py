@@ -7,6 +7,9 @@ subclass from `erpnext_no_discount.overrides.taxes_and_totals`.
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import (
 	SalesInvoice as ERPNextSalesInvoice,
 )
+from erpnext.stock.doctype.delivery_note.delivery_note import (
+	DeliveryNote as ERPNextDeliveryNote,
+)
 from erpnext.selling.doctype.quotation.quotation import Quotation as ERPNextQuotation
 from erpnext.selling.doctype.sales_order.sales_order import SalesOrder as ERPNextSalesOrder
 
@@ -36,4 +39,8 @@ class SalesOrder(NoDiscountMixin, ERPNextSalesOrder):
 
 
 class SalesInvoice(NoDiscountMixin, ERPNextSalesInvoice):
+	pass
+
+
+class DeliveryNote(NoDiscountMixin, ERPNextDeliveryNote):
 	pass
