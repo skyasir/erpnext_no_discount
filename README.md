@@ -1,7 +1,7 @@
 # ERPNext No Discount
 
-Adds a **No Discount Applicable** checkbox to Quotation Item, Sales Order Item
-and Sales Invoice Item. Tick it and Additional Discount skips that row.
+Adds a **No Discount Applicable** checkbox to Quotation Item, Sales Order Item,
+Delivery Note Item and Sales Invoice Item. Tick it and Additional Discount skips that row.
 
 ```
 10% Additional Discount, three rows of 10,000:
@@ -54,7 +54,7 @@ bench restart
 - One ERPNext class is subclassed. On a major ERPNext upgrade, re-check
   `erpnext/controllers/taxes_and_totals.py` for changes to the three methods.
 - Only one app may override a given DocType class. If another app already
-  overrides Quotation / Sales Order / Sales Invoice, the two must be merged.
+  overrides Quotation / Sales Order / Delivery Note / Sales Invoice, the two must be merged.
 
 ## Tests
 
