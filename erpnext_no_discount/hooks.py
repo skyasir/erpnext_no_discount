@@ -17,6 +17,7 @@ override_doctype_class = {
 	"Sales Order": "erpnext_no_discount.overrides.selling.SalesOrder",
 	"Sales Invoice": "erpnext_no_discount.overrides.selling.SalesInvoice",
 	"Delivery Note": "erpnext_no_discount.overrides.selling.DeliveryNote",
+	"Proforma Invoice": "erpnext_no_discount.overrides.proforma_invoice.ProformaInvoice",
 }
 
 fixtures = [
@@ -31,6 +32,7 @@ fixtures = [
 					"Sales Order Item-custom_no_discount_applicable",
 					"Sales Invoice Item-custom_no_discount_applicable",
 					"Delivery Note Item-custom_no_discount_applicable",
+					"Proforma Invoice Item-custom_no_discount_applicable",
 				],
 			]
 		],
@@ -46,6 +48,7 @@ fixtures = [
 					"Sales Order - No Discount Applicable",
 					"Sales Invoice - No Discount Applicable",
 					"Delivery Note - No Discount Applicable",
+					"Proforma Invoice - No Discount Applicable",
 				],
 			]
 		],
