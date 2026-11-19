@@ -71,3 +71,21 @@ enlarges what the others absorb; the flag demonstrably changes the outcome; with
 rows the behaviour is identical to stock ERPNext; all-flagged leaves nothing discountable;
 flat `discount_amount` as well as a percentage; and `apply_discount_on = "Grand Total"`,
 where the result is approximate by design but the flagged row is still kept whole.
+
+<!-- portfolio:start -->
+---
+
+<p align="center">
+  <a href="https://yasirshaikh.in/?app=erpnext_no_discount">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://yasirshaikh.in/files/yasir-logo-on-dark.svg">
+      <img src="https://yasirshaikh.in/files/yasir-logo.svg" alt="Yasir Shaikh" height="64">
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  Built by <a href="https://yasirshaikh.in/">Yasir Shaikh</a>, ERPNext consultant and Frappe developer.<br>
+  <a href="https://yasirshaikh.in/?app=erpnext_no_discount">See this app on my portfolio</a>
+</p>
+<!-- portfolio:end -->
